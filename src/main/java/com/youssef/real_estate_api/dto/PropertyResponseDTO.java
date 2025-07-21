@@ -2,6 +2,8 @@ package com.youssef.real_estate_api.dto;
 
 import lombok.*;
 
+import java.util.List;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -16,6 +18,28 @@ public class PropertyResponseDTO {
     private String city;
 
     private double price;
+
+    private boolean promo;
+
+    private String priceUnit;
+
+    private String type;
+
+    private int rooms;
+
+    private Integer stars;
+
+    private String phone;
+
+    private String ownerUsername;
+
+    private AddressDTO address;
+    private List<PhotoDTO> photos;
+    private PromotionDTO promotion;
+
+
+
+
 
     public Long getId() {
         return id;
@@ -105,19 +129,6 @@ public class PropertyResponseDTO {
         this.ownerUsername = ownerUsername;
     }
 
-    private boolean promo;
-
-    private String priceUnit;
-
-    private String type;
-
-    private int rooms;
-
-    private Integer stars;
-
-    private String phone;
-
-    private String ownerUsername;
 
 
 }

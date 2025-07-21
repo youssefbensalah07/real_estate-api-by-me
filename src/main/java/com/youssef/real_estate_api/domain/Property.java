@@ -5,6 +5,8 @@ import com.youssef.real_estate_api.enums.PropertyType;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
 @Entity
 @Table(name = "properties")
 @Getter
@@ -41,6 +43,15 @@ public class Property {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id")
     private User owner;
+
+    @OneToOne(mappedBy = "property", cascade = CascadeType.ALL)
+    private Address address;
+
+    @OneToMany(mappedBy = "property", cascade = CascadeType.ALL)
+    private List<Photo> photos;
+
+    @OneToOne(mappedBy = "property", cascade = CascadeType.ALL)
+    private Promotion promotion;
 
     public Long getId() {
         return id;

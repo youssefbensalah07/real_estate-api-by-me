@@ -6,6 +6,8 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.*;
 
+import java.util.List;
+
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -20,6 +22,56 @@ public class PropertyRequestDTO {
 
     @Positive
     private double price;
+
+    private boolean promo;
+
+    @NotBlank
+    private String priceUnit;
+
+    @NotBlank
+    private String type;
+
+    private int rooms;
+
+    private Integer stars;
+
+    @NotBlank
+    private String phone;
+
+    @NotNull
+    private Long ownerId;
+
+    public AddressDTO getAddress() {
+        return address;
+    }
+
+    public void setAddress(AddressDTO address) {
+        this.address = address;
+    }
+
+    public List<PhotoDTO> getPhotos() {
+        return photos;
+    }
+
+    public void setPhotos(List<PhotoDTO> photos) {
+        this.photos = photos;
+    }
+
+    public PromotionDTO getPromotion() {
+        return promotion;
+    }
+
+    public void setPromotion(PromotionDTO promotion) {
+        this.promotion = promotion;
+    }
+
+    private AddressDTO address;
+    private List<PhotoDTO> photos;
+    private PromotionDTO promotion;
+
+
+
+
 
     public @NotBlank String getTitle() {
         return title;
@@ -102,21 +154,5 @@ public class PropertyRequestDTO {
         this.ownerId = ownerId;
     }
 
-    private boolean promo;
 
-    @NotBlank
-    private String priceUnit;
-
-    @NotBlank
-    private String type;
-
-    private int rooms;
-
-    private Integer stars;
-
-    @NotBlank
-    private String phone;
-
-    @NotNull
-    private Long ownerId;
 }

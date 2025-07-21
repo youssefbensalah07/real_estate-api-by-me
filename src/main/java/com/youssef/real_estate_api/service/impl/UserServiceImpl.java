@@ -32,6 +32,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserResponseDTO> getAll() {
+        log.info("Fetching all users");
         return userRepository.findAll()
                 .stream()
                 .map(userMapper::toDTO)
@@ -40,6 +41,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponseDTO getById(Long id) {
+        log.info("Fetching user by id: {}", id);
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
         return userMapper.toDTO(user);
@@ -50,4 +52,10 @@ public class UserServiceImpl implements UserService {
         userRepository.deleteById(id);
         log.info("Deleted user with id: {}", id);
     }
+    @Override
+    public User findByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
+    }
+
 }

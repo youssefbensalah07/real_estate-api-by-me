@@ -1,5 +1,7 @@
 package com.youssef.real_estate_api.service;
 
+import com.youssef.real_estate_api.domain.Property;
+import com.youssef.real_estate_api.domain.User;
 import com.youssef.real_estate_api.dto.PropertyRequestDTO;
 import com.youssef.real_estate_api.dto.PropertyResponseDTO;
 
@@ -16,4 +18,9 @@ public interface PropertyService {
             Integer minRooms,
             Integer stars
     );
+
+    User getCurrentUser();
+
+    Property addProperty(PropertyRequestDTO dto, User user);
 }
+
