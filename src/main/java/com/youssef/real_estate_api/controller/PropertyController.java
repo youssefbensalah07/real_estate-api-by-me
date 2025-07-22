@@ -26,6 +26,12 @@ public class PropertyController {
         PropertyResponseDTO created = propertyService.create(dto);
         return ResponseEntity.ok(created);
     }
+//    @PostMapping
+//    public ResponseEntity<PropertyResponseDTO> createProperty(@RequestBody PropertyRequestDTO dto) {
+//        User user = propertyService.getCurrentUser();
+//        Property property = propertyService.addProperty(dto, user);
+//        return ResponseEntity.ok(propertyMapper.toDTO(property));
+//    }
 
     @GetMapping
     public ResponseEntity<List<PropertyResponseDTO>> getAll() {
@@ -34,22 +40,16 @@ public class PropertyController {
     }
 
     @GetMapping("/filter")
-    public ResponseEntity<List<PropertyResponseDTO>> filter(
+    public List<Property> filterProperties(
             @RequestParam(required = false) String city,
             @RequestParam(required = false) Boolean promo,
             @RequestParam(required = false) String type,
             @RequestParam(required = false) String unit,
             @RequestParam(required = false) Integer minRooms,
-            @RequestParam(required = false) Integer stars
-    ) {
-        List<PropertyResponseDTO> filtered = propertyService.filter(city, promo, type, unit, minRooms, stars);
-        return ResponseEntity.ok(filtered);
+            @RequestParam(required = false) Integer stars) {
+
+        return propertyService.customFilter(city, promo, type, unit, minRooms, stars);
     }
-    @PostMapping
-    public ResponseEntity<PropertyResponseDTO> createProperty(@RequestBody PropertyRequestDTO dto) {
-        User user = propertyService.getCurrentUser();
-        Property property = propertyService.addProperty(dto, user);
-        return ResponseEntity.ok(propertyMapper.toDTO(property));
-    }
+
 }
 

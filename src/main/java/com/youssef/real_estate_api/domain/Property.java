@@ -9,12 +9,11 @@ import java.util.List;
 
 @Entity
 @Table(name = "properties")
-@Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class Property {
+
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -141,7 +140,27 @@ public class Property {
         this.owner = owner;
     }
 
+    public Address getAddress() {
+        return address;
+    }
 
+    public void setAddress(Address address) {
+        this.address = address;
+    }
 
+    public List<Photo> getPhotos() {
+        return photos;
+    }
 
+    public void setPhotos(List<Photo> photos) {
+        this.photos = photos;
+    }
+
+    public Promotion getPromotion() {
+        return promotion;
+    }
+
+    public void setPromotion(Promotion promotion) {
+        this.promotion = promotion;
+    }
 }

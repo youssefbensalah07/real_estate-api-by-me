@@ -41,36 +41,9 @@ public class PropertyRequestDTO {
     @NotNull
     private Long ownerId;
 
-    public AddressDTO getAddress() {
-        return address;
-    }
-
-    public void setAddress(AddressDTO address) {
-        this.address = address;
-    }
-
-    public List<PhotoDTO> getPhotos() {
-        return photos;
-    }
-
-    public void setPhotos(List<PhotoDTO> photos) {
-        this.photos = photos;
-    }
-
-    public PromotionDTO getPromotion() {
-        return promotion;
-    }
-
-    public void setPromotion(PromotionDTO promotion) {
-        this.promotion = promotion;
-    }
-
     private AddressDTO address;
     private List<PhotoDTO> photos;
     private PromotionDTO promotion;
-
-
-
 
 
     public @NotBlank String getTitle() {
@@ -154,5 +127,27 @@ public class PropertyRequestDTO {
         this.ownerId = ownerId;
     }
 
+    public AddressDTO getAddress() {
+        return address;
+    }
 
+    public void setAddress(AddressDTO address) {
+        this.address = address;
+    }
+
+    public List<PhotoDTO> getPhotos() {
+        return photos;
+    }
+
+    public void setPhotos(List<PhotoDTO> photos) {
+        this.photos = photos;
+    }
+
+    public PromotionDTO getPromotion() {
+        return promotion;
+    }
+
+    public void setPromotion(PromotionDTO promotion) {
+        this.promotion = promotion;
+    }
 }

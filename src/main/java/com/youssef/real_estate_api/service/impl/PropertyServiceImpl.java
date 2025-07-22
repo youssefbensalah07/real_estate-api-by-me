@@ -3,22 +3,31 @@ package com.youssef.real_estate_api.service.impl;
 import com.youssef.real_estate_api.domain.*;
 import com.youssef.real_estate_api.dto.PropertyRequestDTO;
 import com.youssef.real_estate_api.dto.PropertyResponseDTO;
+import com.youssef.real_estate_api.enums.PriceUnit;
 import com.youssef.real_estate_api.exception.ResourceNotFoundException;
 import com.youssef.real_estate_api.mapper.PropertyMapper;
 import com.youssef.real_estate_api.repository.PropertyRepository;
 import com.youssef.real_estate_api.repository.UserRepository;
 import com.youssef.real_estate_api.service.PropertyService;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class PropertyServiceImpl implements PropertyService {
-
+    @Autowired
+    private EntityManager entityManager;
     private final PropertyRepository propertyRepository;
     private final UserRepository userRepository;
     private final PropertyMapper propertyMapper;
@@ -67,7 +76,25 @@ public class PropertyServiceImpl implements PropertyService {
                 .map(propertyMapper::toDTO)
                 .collect(Collectors.toList());
     }
-                           //🟢 مميزات:
+
+
+    @Override
+    public List<PropertyResponseDTO> filter(String city, Boolean promo, String type, String unit, Integer minRooms, Integer stars) {
+        List<Property> properties = customFilter(city, promo, type, unit, minRooms, stars);
+
+        if (properties.isEmpty()) {
+            log.info("No properties found for filter criteria.");
+            return List.of();
+        }
+
+        return properties.stream()
+                .map(propertyMapper::toDTO)
+                .collect(Collectors.toList());
+    }
+
+
+
+    //🟢 مميزات:
     //
     //الفلترة تتم مباشرة في قاعدة البيانات (SQL أو JPQL)، مما يعني:
     //
@@ -87,19 +114,19 @@ public class PropertyServiceImpl implements PropertyService {
 //يقوم أولًا بجلب كل العقارات من قاعدة البيانات findAll()، ثم يبدأ الفلترة في الذاكرة.
 //
 //إذا كانت قاعدة البيانات تحتوي آلاف العقارات → هذا يسبب بطء واستهلاك كبير للذاكرة.
-    @Override
-    public List<PropertyResponseDTO> filter(String city, Boolean promo, String type, String unit, Integer minRooms, Integer stars) {
-        return propertyRepository.findAll()
-                .stream()
-                .filter(p -> city == null || p.getCity().equalsIgnoreCase(city))
-                .filter(p -> promo == null || p.isPromo() == promo)
-                .filter(p -> type == null || p.getType().name().equalsIgnoreCase(type))
-                .filter(p -> unit == null || p.getPriceUnit().name().equalsIgnoreCase(unit))
-                .filter(p -> minRooms == null || p.getRooms() >= minRooms)
-                .filter(p -> stars == null || (p.getStars() != null && p.getStars() >= stars))
-                .map(propertyMapper::toDTO)
-                .collect(Collectors.toList());
-    }
+//    @Override
+//    public List<PropertyResponseDTO> filter(String city, Boolean promo, String type, String unit, Integer minRooms, Integer stars) {
+//        return propertyRepository.findAll()
+//                .stream()
+//                .filter(p -> city == null || p.getCity().equalsIgnoreCase(city))
+//                .filter(p -> promo == null || p.isPromo() == promo)
+//                .filter(p -> type == null || p.getType().name().equalsIgnoreCase(type))
+//                .filter(p -> unit == null || p.getPriceUnit().name().equalsIgnoreCase(unit))
+//                .filter(p -> minRooms == null || p.getRooms() >= minRooms)
+//                .filter(p -> stars == null || (p.getStars() != null && p.getStars() >= stars))
+//                .map(propertyMapper::toDTO)
+//                .collect(Collectors.toList());
+//    }
 
                               //🔹 المزايا:
     //تعتمد على Spring Security.
@@ -169,4 +196,53 @@ public class PropertyServiceImpl implements PropertyService {
 
         return propertyRepository.save(property);
     }
+
+
+
+    @Override
+    public List<Property> customFilter(String city, Boolean promo, String type, String unit, Integer minRooms, Integer stars) {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Property> query = cb.createQuery(Property.class);
+        Root<Property> root = query.from(Property.class);
+
+        List<Predicate> predicates = new ArrayList<>();
+
+        if (city != null && !city.isEmpty()) {
+            predicates.add(cb.equal(root.get("city"), city));
+        }
+
+        if (promo != null) {
+            predicates.add(cb.equal(root.get("promo"), promo));
+        }
+
+        if (type != null && !type.isEmpty()) {
+            try {
+                predicates.add(cb.equal(root.get("type"), PropertyType.valueOf(type.toUpperCase())));
+            } catch (IllegalArgumentException e) {
+                // يمكن تسجيل خطأ أو تجاهل الشرط
+            }
+        }
+
+        if (unit != null && !unit.isEmpty()) {
+            try {
+                predicates.add(cb.equal(root.get("priceUnit"), PriceUnit.valueOf(unit.toUpperCase())));
+            } catch (IllegalArgumentException e) {
+                // يمكن تسجيل خطأ أو تجاهل الشرط
+            }
+        }
+
+        if (minRooms != null) {
+            predicates.add(cb.greaterThanOrEqualTo(root.get("rooms"), minRooms));
+        }
+
+        if (stars != null) {
+            predicates.add(cb.greaterThanOrEqualTo(root.get("stars"), stars));
+        }
+
+        query.where(cb.and(predicates.toArray(new Predicate[0])));
+
+        return entityManager.createQuery(query).getResultList();
+    }
+
+
 }
