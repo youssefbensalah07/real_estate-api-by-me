@@ -15,6 +15,7 @@ public interface PropertyMapper {
     @Mapping(target = "ownerUsername", expression = "java(property.getOwner() != null ? property.getOwner().getUsername() : null)")
     @Mapping(target = "priceUnit", expression = "java(property.getPriceUnit().name())")
     @Mapping(target = "type", expression = "java(property.getType().name())")
+    @Mapping(target = "photos", source = "photos")
     PropertyResponseDTO toDTO(Property property);
 
 
@@ -22,6 +23,9 @@ public interface PropertyMapper {
     @Mapping(target = "owner", ignore = true)
     @Mapping(target = "priceUnit", expression = "java(com.youssef.real_estate_api.enums.PriceUnit.valueOf(dto.getPriceUnit().toUpperCase()))")
     @Mapping(target = "type", expression = "java(com.youssef.real_estate_api.enums.PropertyType.valueOf(dto.getType().toUpperCase()))")
+    @Mapping(target = "address", source = "address") // مهم لتحويل AddressDTO
+    @Mapping(target = "photos", source = "photos")   // مهم لتحويل PhotoDTO -> Photo
+    @Mapping(target = "promotion", source = "promotion") // لتحويل PromotionDTO
     Property toEntity(PropertyRequestDTO dto);
 
     AddressDTO addressToDto(Address address);

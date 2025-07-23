@@ -21,7 +21,7 @@ public interface PropertyService {
 
     User getCurrentUser();
 
-    Property addProperty(PropertyRequestDTO dto, User user);
+//    Property addProperty(PropertyRequestDTO dto, User user);
 
     List<Property> customFilter(String city, Boolean promo, String type, String unit, Integer minRooms, Integer stars);
 

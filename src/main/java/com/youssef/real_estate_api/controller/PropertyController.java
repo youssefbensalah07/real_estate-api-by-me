@@ -8,23 +8,24 @@ import com.youssef.real_estate_api.mapper.PropertyMapper;
 import com.youssef.real_estate_api.service.PropertyService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/properties")
+@RequestMapping("/api")
 @RequiredArgsConstructor
 public class PropertyController {
 
     private final PropertyService propertyService;
     private final PropertyMapper propertyMapper;
 
-    @PostMapping
-    public ResponseEntity<PropertyResponseDTO> create(@Valid @RequestBody PropertyRequestDTO dto) {
+    @PostMapping("/properties")
+    public ResponseEntity<PropertyResponseDTO> createProperty(@RequestBody @Valid PropertyRequestDTO dto) {
         PropertyResponseDTO created = propertyService.create(dto);
-        return ResponseEntity.ok(created);
+        return new ResponseEntity<>(created, HttpStatus.CREATED);
     }
 //    @PostMapping
 //    public ResponseEntity<PropertyResponseDTO> createProperty(@RequestBody PropertyRequestDTO dto) {

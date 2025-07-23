@@ -6,7 +6,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.List;
-
+@Setter
+@Getter
 @Entity
 @Table(name = "properties")
 @NoArgsConstructor
@@ -29,7 +30,7 @@ public class Property {
 
     @Enumerated(EnumType.STRING)
     private PriceUnit priceUnit;
-
+    @Column(length = 20)
     @Enumerated(EnumType.STRING)
     private PropertyType type;
 
@@ -39,7 +40,8 @@ public class Property {
 
     private String phone;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "owner_id")
     private User owner;
 
@@ -51,6 +53,7 @@ public class Property {
 
     @OneToOne(mappedBy = "property", cascade = CascadeType.ALL)
     private Promotion promotion;
+
 
     public Long getId() {
         return id;

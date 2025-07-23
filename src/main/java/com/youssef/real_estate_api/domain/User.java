@@ -1,8 +1,10 @@
 package com.youssef.real_estate_api.domain;
 
+import com.youssef.real_estate_api.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
-
+@Getter
+@Setter
 @Entity
 @Table(name = "users")
 @NoArgsConstructor
@@ -18,7 +20,8 @@ public class User {
 
     private String phone;
 
-    private String role;  // OWNER or USER
+    @Enumerated(EnumType.STRING)
+    private Role role;  // OWNER or USER
 
     public Long getId() {
         return id;
@@ -44,11 +47,11 @@ public class User {
         this.phone = phone;
     }
 
-    public String getRole() {
+    public Role getRole() {
         return role;
     }
 
-    public void setRole(String role) {
+    public void setRole(Role role) {
         this.role = role;
     }
 }

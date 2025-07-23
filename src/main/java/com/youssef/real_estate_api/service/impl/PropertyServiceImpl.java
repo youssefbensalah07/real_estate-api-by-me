@@ -1,11 +1,14 @@
 package com.youssef.real_estate_api.service.impl;
 
 import com.youssef.real_estate_api.domain.*;
+import com.youssef.real_estate_api.dto.PhotoDTO;
 import com.youssef.real_estate_api.dto.PropertyRequestDTO;
 import com.youssef.real_estate_api.dto.PropertyResponseDTO;
 import com.youssef.real_estate_api.enums.PriceUnit;
+import com.youssef.real_estate_api.enums.PropertyType;
 import com.youssef.real_estate_api.exception.ResourceNotFoundException;
 import com.youssef.real_estate_api.mapper.PropertyMapper;
+import com.youssef.real_estate_api.repository.PhotoRepository;
 import com.youssef.real_estate_api.repository.PropertyRepository;
 import com.youssef.real_estate_api.repository.UserRepository;
 import com.youssef.real_estate_api.service.PropertyService;
@@ -31,6 +34,7 @@ public class PropertyServiceImpl implements PropertyService {
     private final PropertyRepository propertyRepository;
     private final UserRepository userRepository;
     private final PropertyMapper propertyMapper;
+    private final PhotoRepository photoRepository;
 
                              //الخصائص:
 //تعتمد على المستخدم الحالي (current logged-in user)، وليس على dto.getOwnerId().
@@ -58,14 +62,62 @@ public class PropertyServiceImpl implements PropertyService {
     //تطبيقات B2B (مثلاً: وكالة تأجير تضيف عقارات للملاك).
     @Override
     public PropertyResponseDTO create(PropertyRequestDTO dto) {
-        User owner = userRepository.findById(dto.getOwnerId())
-                .orElseThrow(() -> new ResourceNotFoundException("Owner not found"));
-
+        // 1. استخدم المابّر لتحويل الـ DTO إلى Entity (مع كل الحقول الأساسية)
         Property property = propertyMapper.toEntity(dto);
-        property.setOwner(owner);
-        Property saved = propertyRepository.save(property);
 
-        log.info("Created property with ID: {}", saved.getId());
+        // 2. اجلب المستخدم من الـ userRepository
+        User owner = userRepository.findById(dto.getOwnerId())
+                .orElseThrow(() -> new RuntimeException("Owner with id " + dto.getOwnerId() + " not found"));
+        property.setOwner(owner);
+
+        if (dto.getAddress() != null) {
+            Address address = new Address();
+            address.setCity(dto.getAddress().getCity());
+            address.setStreet(dto.getAddress().getStreet());
+            address.setZipCode(dto.getAddress().getZipCode());
+            address.setProperty(property); // علاقة عكسية
+            property.setAddress(address);
+        }
+
+        // 4. إعداد Promotion
+        if (dto.getPromotion() != null) {
+            Promotion promotion = new Promotion();
+            promotion.setDiscountPercentage(dto.getPromotion().getDiscountPercentage());
+            promotion.setStartDate(dto.getPromotion().getStartDate());
+            promotion.setEndDate(dto.getPromotion().getEndDate());
+            promotion.setProperty(property); // علاقة عكسية
+            property.setPromotion(promotion);
+        }
+
+//---------med work---
+        // 3. أضف العلاقة العكسية للصور (photo.setProperty)
+//        if (property.getPhotos() != null) {
+//            List<Photo> photos = new ArrayList<>();
+//            List<PhotoDTO> photosTO = dto.getPhotos();
+//            for (PhotoDTO photoDTO : photosTO) {
+//                Photo foto = new Photo();
+//                foto.setUrl(photoDTO.getUrl());
+//                photos.add(foto);
+//            }
+//            property.setPhotos(photos);
+//            photoRepository.saveAll(photos);
+//        }
+//
+//        // 4. خزّن الـ Property (بما فيه كل شيء: العنوان، الصور، المستخدم، الترويج)
+//        Property saved = propertyRepository.save(property);
+        if (dto.getPhotos() != null) {
+            List<Photo> photos = new ArrayList<>();
+            for (PhotoDTO photoDTO : dto.getPhotos()) {
+                Photo photo = new Photo();
+                photo.setUrl(photoDTO.getUrl());
+                photo.setProperty(property); // ✅ ضروري لربط الصور بالعقار
+                photos.add(photo);
+            }
+            property.setPhotos(photos);
+        }
+
+        Property saved = propertyRepository.save(property);
+        // 5. رجع DTO للرد
         return propertyMapper.toDTO(saved);
     }
 
@@ -169,33 +221,33 @@ public class PropertyServiceImpl implements PropertyService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
     }
 
-    public Property addProperty(PropertyRequestDTO dto, User user) {
-        Property property = propertyMapper.toEntity(dto);
-        property.setOwner(user);
-
-        // address
-        Address address = propertyMapper.dtoToAddress(dto.getAddress());
-        address.setProperty(property);
-        property.setAddress(address);
-
-        // photos
-        if (dto.getPhotos() != null) {
-            List<Photo> photos = dto.getPhotos().stream()
-                    .map(propertyMapper::dtoToPhoto)
-                    .peek(p -> p.setProperty(property))
-                    .collect(Collectors.toList());
-            property.setPhotos(photos);
-        }
-
-        // promotion
-        if (dto.getPromotion() != null) {
-            Promotion promo = propertyMapper.dtoToPromotion(dto.getPromotion());
-            promo.setProperty(property);
-            property.setPromotion(promo);
-        }
-
-        return propertyRepository.save(property);
-    }
+//    public Property addProperty(PropertyRequestDTO dto, User user) {
+//        Property property = propertyMapper.toEntity(dto);
+//        property.setOwner(user);
+//
+//        // address
+//        Address address = propertyMapper.dtoToAddress(dto.getAddress());
+//        address.setProperty(property);
+//        property.setAddress(address);
+//
+//        // photos
+//        if (dto.getPhotos() != null) {
+//            List<Photo> photos = dto.getPhotos().stream()
+//                    .map(propertyMapper::dtoToPhoto)
+//                    .peek(p -> p.setProperty(property))
+//                    .collect(Collectors.toList());
+//            property.setPhotos(photos);
+//        }
+//
+//        // promotion
+//        if (dto.getPromotion() != null) {
+//            Promotion promo = propertyMapper.dtoToPromotion(dto.getPromotion());
+//            promo.setProperty(property);
+//            property.setPromotion(promo);
+//        }
+//
+//        return propertyRepository.save(property);
+//    }
 
 
 

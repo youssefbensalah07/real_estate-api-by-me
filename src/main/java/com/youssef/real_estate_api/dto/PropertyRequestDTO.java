@@ -35,6 +35,7 @@ public class PropertyRequestDTO {
 
     private Integer stars;
 
+    private String ownerUsername;
     @NotBlank
     private String phone;
 
